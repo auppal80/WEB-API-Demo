@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="CertificationsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="ApiUser">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Secret" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="AppId" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="AuthTokens" Relationship="Self.FK_AuthToken_ApiUser_ApiUser_Id" FromRole="ApiUser" ToRole="AuthToken" />
+  </EntityType>
+  <EntityType Name="AuthToken">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Expiration" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="ApiUser_Id" Type="Int32" />
+    <NavigationProperty Name="ApiUser" Relationship="Self.FK_AuthToken_ApiUser_ApiUser_Id" FromRole="AuthToken" ToRole="ApiUser" />
+  </EntityType>
+  <EntityType Name="Certification">
+    <Key>
+      <PropertyRef Name="CertificationId" />
+    </Key>
+    <Property Name="CertificationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" MaxLength="400" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="IssuedBy" Type="String" MaxLength="400" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="InsertedDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <NavigationProperty Name="UsersCertifications" Relationship="Self.FK_UsersCertifications_Certifications_CertificationId" FromRole="Certifications" ToRole="UsersCertifications" />
+  </EntityType>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="UserId" />
+    </Key>
+    <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="UserName" Type="String" MaxLength="25" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="FullName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="UsersCertifications" Relationship="Self.FK_UsersCertifications_Users_UserId" FromRole="Users" ToRole="UsersCertifications" />
+  </EntityType>
+  <EntityType Name="UsersCertification">
+    <Key>
+      <PropertyRef Name="UserId" />
+      <PropertyRef Name="CertificationId" />
+      <PropertyRef Name="CertificationDate" />
+    </Key>
+    <Property Name="UserId" Type="Int32" Nullable="false" />
+    <Property Name="CertificationId" Type="Int32" Nullable="false" />
+    <Property Name="CertificationDate" Type="DateTime" Nullable="false" Precision="3" />
+    <NavigationProperty Name="Certification" Relationship="Self.FK_UsersCertifications_Certifications_CertificationId" FromRole="UsersCertifications" ToRole="Certifications" />
+    <NavigationProperty Name="User" Relationship="Self.FK_UsersCertifications_Users_UserId" FromRole="UsersCertifications" ToRole="Users" />
+  </EntityType>
+  <Association Name="FK_AuthToken_ApiUser_ApiUser_Id">
+    <End Role="ApiUser" Type="Self.ApiUser" Multiplicity="0..1" />
+    <End Role="AuthToken" Type="Self.AuthToken" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ApiUser">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="AuthToken">
+        <PropertyRef Name="ApiUser_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_UsersCertifications_Certifications_CertificationId">
+    <End Role="Certifications" Type="Self.Certification" Multiplicity="1" />
+    <End Role="UsersCertifications" Type="Self.UsersCertification" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Certifications">
+        <PropertyRef Name="CertificationId" />
+      </Principal>
+      <Dependent Role="UsersCertifications">
+        <PropertyRef Name="CertificationId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_UsersCertifications_Users_UserId">
+    <End Role="Users" Type="Self.User" Multiplicity="1" />
+    <End Role="UsersCertifications" Type="Self.UsersCertification" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="UsersCertifications">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="CertificationsEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="ApiUsers" EntityType="Self.ApiUser" />
+    <EntitySet Name="AuthTokens" EntityType="Self.AuthToken" />
+    <EntitySet Name="Certifications" EntityType="Self.Certification" />
+    <EntitySet Name="Users" EntityType="Self.User" />
+    <EntitySet Name="UsersCertifications" EntityType="Self.UsersCertification" />
+    <AssociationSet Name="FK_AuthToken_ApiUser_ApiUser_Id" Association="Self.FK_AuthToken_ApiUser_ApiUser_Id">
+      <End Role="ApiUser" EntitySet="ApiUsers" />
+      <End Role="AuthToken" EntitySet="AuthTokens" />
+    </AssociationSet>
+    <AssociationSet Name="FK_UsersCertifications_Certifications_CertificationId" Association="Self.FK_UsersCertifications_Certifications_CertificationId">
+      <End Role="Certifications" EntitySet="Certifications" />
+      <End Role="UsersCertifications" EntitySet="UsersCertifications" />
+    </AssociationSet>
+    <AssociationSet Name="FK_UsersCertifications_Users_UserId" Association="Self.FK_UsersCertifications_Users_UserId">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="UsersCertifications" EntitySet="UsersCertifications" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

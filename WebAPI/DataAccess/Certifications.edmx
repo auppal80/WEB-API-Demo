@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="CertificationsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ApiUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Secret" Type="nvarchar(max)" />
+          <Property Name="AppId" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="AuthToken">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Token" Type="nvarchar(max)" />
+          <Property Name="Expiration" Type="datetime" Nullable="false" />
+          <Property Name="ApiUser_Id" Type="int" />
+        </EntityType>
+        <EntityType Name="Certifications">
+          <Key>
+            <PropertyRef Name="CertificationId" />
+          </Key>
+          <Property Name="CertificationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="400" Nullable="false" />
+          <Property Name="IssuedBy" Type="varchar" MaxLength="400" Nullable="false" />
+          <Property Name="InsertedDate" Type="datetime" Nullable="false" />
+          <Property Name="Active" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserName" Type="varchar" MaxLength="25" Nullable="false" />
+          <Property Name="FullName" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Certifications.dbo.UsersCertifications' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="UsersCertifications">
+          <Key>
+            <PropertyRef Name="UserId" />
+            <PropertyRef Name="CertificationId" />
+            <PropertyRef Name="CertificationDate" />
+          </Key>
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="CertificationId" Type="int" Nullable="false" />
+          <Property Name="CertificationDate" Type="datetime" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_AuthToken_ApiUser_ApiUser_Id">
+          <End Role="ApiUser" Type="Self.ApiUser" Multiplicity="0..1" />
+          <End Role="AuthToken" Type="Self.AuthToken" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ApiUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AuthToken">
+              <PropertyRef Name="ApiUser_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UsersCertifications_Certifications_CertificationId">
+          <End Role="Certifications" Type="Self.Certifications" Multiplicity="1" />
+          <End Role="UsersCertifications" Type="Self.UsersCertifications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Certifications">
+              <PropertyRef Name="CertificationId" />
+            </Principal>
+            <Dependent Role="UsersCertifications">
+              <PropertyRef Name="CertificationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UsersCertifications_Users_UserId">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="UsersCertifications" Type="Self.UsersCertifications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="UsersCertifications">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="CertificationsModelStoreContainer">
+          <EntitySet Name="ApiUser" EntityType="Self.ApiUser" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AuthToken" EntityType="Self.AuthToken" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Certifications" EntityType="Self.Certifications" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UsersCertifications" EntityType="Self.UsersCertifications" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+[UsersCertifications].[UserId] AS [UserId], 
+[UsersCertifications].[CertificationId] AS [CertificationId], 
+[UsersCertifications].[CertificationDate] AS [CertificationDate]
+FROM [dbo].[UsersCertifications] AS [UsersCertifications]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="FK_AuthToken_ApiUser_ApiUser_Id" Association="Self.FK_AuthToken_ApiUser_ApiUser_Id">
+            <End Role="ApiUser" EntitySet="ApiUser" />
+            <End Role="AuthToken" EntitySet="AuthToken" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UsersCertifications_Certifications_CertificationId" Association="Self.FK_UsersCertifications_Certifications_CertificationId">
+            <End Role="Certifications" EntitySet="Certifications" />
+            <End Role="UsersCertifications" EntitySet="UsersCertifications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UsersCertifications_Users_UserId" Association="Self.FK_UsersCertifications_Users_UserId">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="UsersCertifications" EntitySet="UsersCertifications" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="CertificationsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ApiUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Secret" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AppId" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="AuthTokens" Relationship="Self.FK_AuthToken_ApiUser_ApiUser_Id" FromRole="ApiUser" ToRole="AuthToken" />
+        </EntityType>
+        <EntityType Name="AuthToken">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Token" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Expiration" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ApiUser_Id" Type="Int32" />
+          <NavigationProperty Name="ApiUser" Relationship="Self.FK_AuthToken_ApiUser_ApiUser_Id" FromRole="AuthToken" ToRole="ApiUser" />
+        </EntityType>
+        <EntityType Name="Certification">
+          <Key>
+            <PropertyRef Name="CertificationId" />
+          </Key>
+          <Property Name="CertificationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="400" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="IssuedBy" Type="String" MaxLength="400" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="InsertedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Active" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="UsersCertifications" Relationship="Self.FK_UsersCertifications_Certifications_CertificationId" FromRole="Certifications" ToRole="UsersCertifications" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserName" Type="String" MaxLength="25" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="FullName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="UsersCertifications" Relationship="Self.FK_UsersCertifications_Users_UserId" FromRole="Users" ToRole="UsersCertifications" />
+        </EntityType>
+        <EntityType Name="UsersCertification">
+          <Key>
+            <PropertyRef Name="UserId" />
+            <PropertyRef Name="CertificationId" />
+            <PropertyRef Name="CertificationDate" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="CertificationId" Type="Int32" Nullable="false" />
+          <Property Name="CertificationDate" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Certification" Relationship="Self.FK_UsersCertifications_Certifications_CertificationId" FromRole="UsersCertifications" ToRole="Certifications" />
+          <NavigationProperty Name="User" Relationship="Self.FK_UsersCertifications_Users_UserId" FromRole="UsersCertifications" ToRole="Users" />
+        </EntityType>
+        <Association Name="FK_AuthToken_ApiUser_ApiUser_Id">
+          <End Role="ApiUser" Type="Self.ApiUser" Multiplicity="0..1" />
+          <End Role="AuthToken" Type="Self.AuthToken" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ApiUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AuthToken">
+              <PropertyRef Name="ApiUser_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UsersCertifications_Certifications_CertificationId">
+          <End Role="Certifications" Type="Self.Certification" Multiplicity="1" />
+          <End Role="UsersCertifications" Type="Self.UsersCertification" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Certifications">
+              <PropertyRef Name="CertificationId" />
+            </Principal>
+            <Dependent Role="UsersCertifications">
+              <PropertyRef Name="CertificationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UsersCertifications_Users_UserId">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="UsersCertifications" Type="Self.UsersCertification" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="UsersCertifications">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="CertificationsEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ApiUsers" EntityType="Self.ApiUser" />
+          <EntitySet Name="AuthTokens" EntityType="Self.AuthToken" />
+          <EntitySet Name="Certifications" EntityType="Self.Certification" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <EntitySet Name="UsersCertifications" EntityType="Self.UsersCertification" />
+          <AssociationSet Name="FK_AuthToken_ApiUser_ApiUser_Id" Association="Self.FK_AuthToken_ApiUser_ApiUser_Id">
+            <End Role="ApiUser" EntitySet="ApiUsers" />
+            <End Role="AuthToken" EntitySet="AuthTokens" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UsersCertifications_Certifications_CertificationId" Association="Self.FK_UsersCertifications_Certifications_CertificationId">
+            <End Role="Certifications" EntitySet="Certifications" />
+            <End Role="UsersCertifications" EntitySet="UsersCertifications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UsersCertifications_Users_UserId" Association="Self.FK_UsersCertifications_Users_UserId">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="UsersCertifications" EntitySet="UsersCertifications" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="CertificationsModelStoreContainer" CdmEntityContainer="CertificationsEntities">
+          <EntitySetMapping Name="ApiUsers">
+            <EntityTypeMapping TypeName="CertificationsModel.ApiUser">
+              <MappingFragment StoreEntitySet="ApiUser">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Secret" ColumnName="Secret" />
+                <ScalarProperty Name="AppId" ColumnName="AppId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AuthTokens">
+            <EntityTypeMapping TypeName="CertificationsModel.AuthToken">
+              <MappingFragment StoreEntitySet="AuthToken">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Token" ColumnName="Token" />
+                <ScalarProperty Name="Expiration" ColumnName="Expiration" />
+                <ScalarProperty Name="ApiUser_Id" ColumnName="ApiUser_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Certifications">
+            <EntityTypeMapping TypeName="CertificationsModel.Certification">
+              <MappingFragment StoreEntitySet="Certifications">
+                <ScalarProperty Name="CertificationId" ColumnName="CertificationId" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="IssuedBy" ColumnName="IssuedBy" />
+                <ScalarProperty Name="InsertedDate" ColumnName="InsertedDate" />
+                <ScalarProperty Name="Active" ColumnName="Active" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="CertificationsModel.User">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UsersCertifications">
+            <EntityTypeMapping TypeName="CertificationsModel.UsersCertification">
+              <MappingFragment StoreEntitySet="UsersCertifications">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="CertificationId" ColumnName="CertificationId" />
+                <ScalarProperty Name="CertificationDate" ColumnName="CertificationDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="true" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

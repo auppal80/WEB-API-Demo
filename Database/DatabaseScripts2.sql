@@ -1,0 +1,21 @@
+CREATE TABLE [AuthToken](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Token] [nvarchar](max) NULL,
+	[Expiration] [datetime] NOT NULL,
+	[ApiUser_Id] [int] NULL,
+ CONSTRAINT [PK_AuthToken] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
+ALTER TABLE [AuthToken]  WITH CHECK ADD  CONSTRAINT [FK_AuthToken_ApiUser_ApiUser_Id] FOREIGN KEY([ApiUser_Id])
+REFERENCES [ApiUser] ([Id])
+GO
+
+ALTER TABLE [AuthToken] CHECK CONSTRAINT [FK_AuthToken_ApiUser_ApiUser_Id]
+GO
+
+
