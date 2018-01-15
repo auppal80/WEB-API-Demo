@@ -23,14 +23,14 @@ namespace WebAPI.Controllers
         public IHttpActionResult Get(int userId)
         {
             string name = _identityService.CurrentUser;
-            var userModel = TheRepository.GetUserByUserId(userId);
+            var userModel = TheModelFactory.CreateUser(TheRepository.GetUserByUserId(userId));
             if (userModel.UserName != name)
                 {
                 return Unauthorized();
             }
                 else
             {
-                return Ok(TheRepository.GetCertificationForUser(userId));
+                return Ok((TheRepository.GetCertificationForUser(userId).Select(cu=>TheModelFactory.GetCertificateInfo(cu))));
             }
          
         }

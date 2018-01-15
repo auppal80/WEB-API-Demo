@@ -1,9 +1,9 @@
 ﻿using DataAccess;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Web.Http;
 using WebAPI.Controllers;
@@ -26,13 +26,11 @@ namespace WEAPI.Controllers
                 if (user != null)
                 {
                     var secret = user.Secret;
-
-                    // Simplistic implementation DO NOT USE
                     var key = Convert.FromBase64String(secret);
-                    var provider = new System.Security.Cryptography.HMACSHA256(key);
-                    // Compute Hash from API Key (NOT SECURE)
-                    var hash = provider.ComputeHash(Encoding.UTF8.GetBytes(user.AppId));
-                    var signature = Convert.ToBase64String(hash);
+
+                    HMACSHA256 provider = new HMACSHA256(key);
+                    byte[] hash = provider.ComputeHash(Encoding.UTF8.GetBytes(user.AppId));
+                    string signature = Convert.ToBase64String(hash);
 
                     if (signature == model.Signature)
                     {

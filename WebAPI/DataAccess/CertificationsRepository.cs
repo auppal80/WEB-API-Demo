@@ -1,7 +1,9 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-
+using System.Data.Entity;
 namespace DataAccess
 {
     public class CertificationsRepository : ICertificationRespository
@@ -12,9 +14,9 @@ namespace DataAccess
             _ctx = ctx;
         }
 
-        public Task<IQueryable<Certification>> GetAllCertifications()
+        public Task<List<Certification>> GetAllCertifications()
         {
-            return Task.Run(() => _ctx.Certifications.Where(c => c.Active == true));
+            return Task.Run(() => _ctx.Certifications.Where(c => c.Active == true).ToList());
 
         }
 
@@ -71,7 +73,7 @@ namespace DataAccess
             }
             catch
             {
-                // TODO Logging
+                //log error
             }
 
             return false;

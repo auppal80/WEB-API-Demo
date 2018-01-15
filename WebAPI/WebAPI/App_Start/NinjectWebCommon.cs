@@ -8,10 +8,11 @@ namespace WebAPI.App_Start
     using System.Web;
     using DataAccess;
     using Microsoft.Web.Infrastructure.DynamicModuleHelper;
-
+    using System.Web.Http;
     using Ninject;
     using Ninject.Web.Common;
-
+    using WebApiContrib.IoC.Ninject;
+    using WebAPI.Services;
     public static class NinjectWebCommon 
     {
         private static readonly Bootstrapper bootstrapper = new Bootstrapper();
@@ -45,9 +46,11 @@ namespace WebAPI.App_Start
             {
                 kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
                 kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
-               
+                GlobalConfiguration.Configuration.DependencyResolver =
+                new NinjectResolver(kernel);
 
                 RegisterServices(kernel);
+               
                 return kernel;
             }
             catch
@@ -65,6 +68,7 @@ namespace WebAPI.App_Start
         {
             kernel.Bind<ICertificationRespository>().To<CertificationsRepository>();
             kernel.Bind<CertificationsEntities>().To<CertificationsEntities>();
+            kernel.Bind<IGetCurrentUserIdentity>().To<GetCurrentUserIdentity>();
         }        
     }
 }

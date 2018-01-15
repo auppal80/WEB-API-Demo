@@ -24,7 +24,8 @@ namespace WebAPI.Filters
                 {
                     var rawCredentials = authHeader.Parameter;
                     var encoding = Encoding.GetEncoding("iso-8859-1");
-                    var credentials = encoding.GetString(Convert.FromBase64String(rawCredentials));
+                    var credentials = 
+                        encoding.GetString(Convert.FromBase64String(rawCredentials));
                     var split = credentials.Split(':');
                     var username = split[0];
                     var password = split[1];
@@ -42,6 +43,7 @@ namespace WebAPI.Filters
 
         private Boolean ValidateUser(string username, string password)
         {
+            // you can write code to check from database and make sure user is valid.
             return true;
         }
     }

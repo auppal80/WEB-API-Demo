@@ -8,7 +8,7 @@ namespace DataAccess
 {
     public interface ICertificationRespository
     {
-        Task<IQueryable<Certification>> GetAllCertifications();
+        Task<List<Certification>> GetAllCertifications();
         Certification GetCertificationbyCertificationId(int Id);
         IQueryable<User> GetAllUsers();
         IQueryable<UsersCertification> GetCertificationForUser(int userID);

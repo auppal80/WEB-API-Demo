@@ -7,34 +7,34 @@ using System.Web.Http;
 using DataAccess;
 using System.Web.Http.Cors;
 using WebAPI.Services;
-
+using WebAPI.Models;
 namespace WebAPI.Controllers
 {
-    [EnableCors("*","*","*")]
+    [DisableCors()]
     public class UsersController : BaseApiController
     {
         public UsersController(ICertificationRespository repo, IGetCurrentUserIdentity getCurrentUserIdentityService) : base(repo)
         {
         }
-
+        [DisableCors]
         public IHttpActionResult Get()
         {
-            return Ok(TheRepository.GetAllUsers());
+            return Ok(TheRepository.GetAllUsers().ToList().Select(x => TheModelFactory.CreateUser(x)).ToList());
         }
         public IHttpActionResult Get(int id)
         {
-            return Ok(TheRepository.GetUserByUserId(id));
+            return Ok(TheModelFactory.CreateUser(TheRepository.GetUserByUserId(id)));
         }
 
-        public IHttpActionResult Post([FromBody] User model)
+        public IHttpActionResult Post([FromBody] UserUriModel model)
         {
             if (TheRepository.GetUserByUserName(model.UserName) != null)
             {
                 return Conflict();
             }
-            if (TheRepository.InsertUser(model) && TheRepository.SaveAll())
+            if (TheRepository.InsertUser(TheModelFactory.ParseUser(model)) && TheRepository.SaveAll())
             {
-                return Created(TheModelFactory.CreateUser(model).Url, model);
+                return Created(TheModelFactory.CreateUser(TheModelFactory.ParseUser(model)).Url, model);
             }
 
             return BadRequest();

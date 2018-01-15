@@ -9,7 +9,6 @@ using System.Web.Http;
 using System.Web.Http.Routing;
 using WebAPI.Models;
 using WebAPI.Services;
-
 namespace WebAPI.Controllers
 {
     [RoutePrefix("api/Certificates")]
@@ -23,7 +22,7 @@ namespace WebAPI.Controllers
         public async Task<IHttpActionResult> Get(int page = 0, int page_Size = PAGE_SIZE)
         {
             var certifications = TheRepository.GetAllCertifications();
-
+            // we can do some calculations or some work here if we need to.
             await certifications;
 
             var orderedCertifications = certifications.Result.OrderBy(c => c.Name);
@@ -38,10 +37,18 @@ namespace WebAPI.Controllers
             {
                 certificatePageModel.prevPage = helper.Link("Certificates", new { page = page - 1 });
             }
+            else
+            {
+                certificatePageModel.prevPage = "";
+            }
 
             if (page < totalPages - 1)
             {
                 certificatePageModel.nextPage = helper.Link("Certificates", new { page = page + 1 });
+            }
+            else
+            {
+                certificatePageModel.nextPage = "";
             }
 
             certificatePageModel.CertificateUrIModelList = orderedCertifications.Skip(page_Size * page)
@@ -54,43 +61,60 @@ namespace WebAPI.Controllers
         public IHttpActionResult Get(int id)
         {
             var certfication = TheRepository.GetCertificationbyCertificationId(id);
+
             if (certfication == null)
             {
                 return NotFound();
             }
             else
             {
-                return Ok(certfication);
+                return Ok(TheModelFactory.Create(certfication));
             }
         }
-
-        public IHttpActionResult Post([FromBody] Certification model)
+        [Route("")]
+        public IHttpActionResult Post([FromBody] CertificateUriModel model)
         {
             if (TheRepository.GetCertificationByName(model.Name) != null)
-            {
+            {   // 409 error
                 return Conflict();
             }
-            if (TheRepository.InsertCertification(model) && TheRepository.SaveAll())
+            var modelCertificate = TheModelFactory.Convert(model);
+            if (TheRepository.InsertCertification(modelCertificate) && TheRepository.SaveAll())
             {
-                return Created(TheModelFactory.Create(model).Url, model);
+                var modelUriCreated= TheModelFactory.Create(modelCertificate);
+                return Created(modelUriCreated.Url, modelUriCreated);
             }
 
             return BadRequest();
         }
 
-        [Route("{id}", Name = "Certificate")]
+        [Route("")]
+        public IHttpActionResult Put([FromBody] CertificateUriModel model)
+        {
+            if (TheRepository.GetCertificationByName(model.Name) != null)
+            {
+                return Conflict();
+            }
+            if (TheRepository.UpdateCertification(TheModelFactory.Convert(model)) && TheRepository.SaveAll())
+            {
+                return Created(TheModelFactory.Create(TheModelFactory.Convert(model)).Url, model);
+            }
+
+            return BadRequest();
+        }
+        [Route("{id:int}")]
         public IHttpActionResult Delete(int id)
         {
             var entity = TheRepository.GetCertificationbyCertificationId(id);
-                if (entity == null)
-                {
-                    return NotFound();
-                }
+            if (entity == null)
+            {
+                return NotFound();
+            }
 
-                if (TheRepository.DeleteCertification(entity.CertificationId) && TheRepository.SaveAll())
-                {
-                    return Ok();
-                }
+            if (TheRepository.DeleteCertification(entity.CertificationId) && TheRepository.SaveAll())
+            {
+                return Ok();
+            }
             return BadRequest();
         }
     }
